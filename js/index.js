@@ -1,72 +1,75 @@
-document.addEventListener("DOMContentLoaded", function() {
-  getDataFromServer()
-});
+const url = 'http://localhost:3000/books'
 
-function getDataFromServer() {
-  fetch('http://localhost:3000/books')
+const user = {"id":1, "username":"pouros"}
+
+const ulList = document.querySelector('#list')
+const showPanel = document.querySelector('#show-panel')
+const likeBtn = document.createElement('button')
+const ulLiksUsers = document.createElement('ul')
+
+const image = document.createElement('img')
+const title = document.createElement('h2')
+const subtitle = document.createElement('h2')
+const author = document.createElement('h2')
+const description = document.createElement('p')
+
+getBooks().then(data => {
+  console.log(data)
+  listOfBooks(data)
+  handleLike()
+})
+
+function getBooks(){
+  return fetch(url)
   .then(res => res.json())
-  .then(data => { 
-    createBooksList(data)
-    createDetails()
-    addDetails(data[0])
+}
+
+function listOfBooks(books){
+  books.forEach(book => {
+    const li = document.createElement('li')
+    li.textContent = book.title
+    ulList.append(li)
+
+    li.addEventListener('click', () => {
+      showDetails(book)
+    })
   })
 }
 
-function createBooksList(data) {
-  console.log(data)
-  const listElement = document.getElementById('list')
-  data.forEach(element => {
-    let liElement = document.createElement('li')
-    liElement.textContent = element.title
+function showDetails(book){
+  showPanel.innerHTML = ""
+  ulLiksUsers.innerHTML = ""
 
-    liElement.addEventListener('click', () => addDetails(element))
 
-    listElement.appendChild(liElement)
-  });
+  image.src = book.img_url
+  title.textContent = book.title
+  subtitle.textContent = book.subtitle
+  author.textContent = book.author
+  description.textContent = book.description
+
+  if (book.users) {    
+    book.users.forEach(user => {
+      const liLikeUsers = document.createElement('li')
+
+      liLikeUsers.textContent = user.username
+      ulLiksUsers.append(liLikeUsers)
+    })
+  }
+
+  while(showPanel.firstChild) {
+    console.log(showPanel.firstChild)
+    showPanel.removeChild(showPanel.lastChild)
+  }
+
+  showPanel.append(image, title, subtitle, author, description, ulLiksUsers)
 }
 
-function createDetails() {
-  const showPanel = document.getElementById('show-panel')
+function handleLike(){
+  likeBtn.id = 'like-btn'
+  likeBtn.textContent = 'Like'
+  likeBtn.addEventListener('click', () => {
+    console.log(user)
+  })
 
-  const bookImage = document.createElement('img')
-  const bookTitle = document.createElement('h3')
-  const bookAuthor = document.createElement('h3')
-  const bookSubtitle = document.createElement('h3')
-  const bookDescription = document.createElement('h3')
-  const ulElement = document.createElement('ul')
-
-  const newButton = document.createElement('button');
-  newButton.id ='button'
-  newButton.textContent = 'Like!';
-
-  bookImage.id = 'book_image'
-  bookTitle.id = 'book_title'
-  bookAuthor.id = 'book_author'
-  bookSubtitle.is = 'book_subtitle'
-  bookDescription.id = 'book_description'
-  ulElement.id = 'book_ul'
-
-  showPanel.appendChild(bookImage)
-  showPanel.appendChild(bookTitle)
-  showPanel.appendChild(bookAuthor)
-  showPanel.appendChild(bookSubtitle)
-  showPanel.appendChild(bookDescription)
-  showPanel.appendChild(newButton)
-}
-
-function addDetails(item) {
-  
-  const bookImage = document.createElement('img')
-  const bookTitle = document.createElement('h3')
-  const bookAuthor = document.createElement('h3')
-  const bookSubtitle = document.createElement('h3')
-  const bookDescription = document.createElement('h3')
-  const ulElement = document.createElement('ul')
-  const newButton = document.createElement('button');
-  newButton.textContent = 'Click me!';
-  document.body.appendChild(newButton);
-
-  bookImage.src = item.img_url
-
-  showPanel.appendChild(bookImage)
+  showPanel.append(likeBtn)
 }
